@@ -1,0 +1,6 @@
+THESE ARE THE STUFF I RAN IN THE TERMINAL IN ORDER TO TRAIN THE MODEL
+
+
+pip install torch torchvision
+
+pip install mediapipe torch torchvision
