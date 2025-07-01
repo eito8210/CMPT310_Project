@@ -850,6 +850,15 @@ def main():
             print("📊 Dataset ready for CNN training (Seungyeop's part)")
             print("💾 Processed data saved as 'fer_dataset.npz'")
             print(f"🎯 Expected accuracy: >90% (high-quality dataset)")
+
+            # visualize 16 random training samples from FER+
+            X_train, _, y_train, _ = processor.load_processed_dataset('fer_dataset.npz')
+            processor.visualize_dataset_samples(
+                X_train, y_train,
+                num_samples=16,
+                title="FER+ Dataset Samples"
+            )
+            
         else:
             print("\n🔄 FER+ dataset setup completed, but no data processed yet.")
             print("Please ensure images are placed in the correct directories and run again.")
