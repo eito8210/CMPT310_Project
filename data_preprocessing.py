@@ -504,7 +504,7 @@ class SmileDatasetProcessor:
             y_train: Training labels
             augmentation_factor: Number of augmented versions per image
         Returns:
-            Augmented dataset
+            Augmented dataset (with zero‐padding images removed)
         """
         print("Applying data augmentation...")
         
@@ -535,15 +535,19 @@ class SmileDatasetProcessor:
             # Generate augmented versions
             aug_iter = datagen.flow(img, batch_size=1)
             
-            for _ in range(augmentation_factor):
-                if current_idx < augmented_size:
-                    aug_img = next(aug_iter)[0]
-                    X_augmented[current_idx] = aug_img
-                    y_augmented[current_idx] = label
-                    current_idx += 1
+            aug_img = next(aug_iter)[0]
+            X_augmented[current_idx] = aug_img
+            y_augmented[current_idx] = label
+            current_idx += 1
+
+                
         
-        print(f"Augmentation completed: {original_size} -> {augmented_size} images")
-        return X_augmented, y_augmented
+        print(f"Augmentation completed: {original_size} -> {current_idx} images")
+
+    # trim off any zero-padded entries before returning
+        X_final = X_augmented[:current_idx]
+        y_final = y_augmented[:current_idx]
+        return X_final, y_final
     
     def _manual_augmentation(self, X_train, y_train, augmentation_factor=3):
         """
@@ -720,9 +724,22 @@ class SmileDatasetProcessor:
     
     def visualize_dataset_samples(self, X, y, num_samples=16, title="Dataset Samples"):
         """
-        Visualize random samples from the dataset
+        Visualize random samples from the dataset, skipping zero images
         """
-        indices = np.random.choice(len(X), num_samples, replace=False)
+        # Filter out zero (blank) images
+        valid_indices = [i for i in range(len(X)) if X[i].mean() > 0]
+        if len(valid_indices) < num_samples:
+            print(f"Warning: only {len(valid_indices)} valid images available, reducing sample count accordingly.")
+            num_samples = len(valid_indices)
+
+        indices = np.random.choice(valid_indices, num_samples, replace=False)
+
+
+
+
+
+
+
         
         fig, axes = plt.subplots(4, 4, figsize=(12, 12))
         fig.suptitle(title, fontsize=16)
