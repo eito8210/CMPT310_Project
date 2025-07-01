@@ -1,0 +1,234 @@
+#!/bin/bash
+# Project Cleanup Script for CMPT310
+# Removes large files and prepares for GitHub push
+
+echo "======================================================"
+echo "CMPT310 PROJECT CLEANUP SCRIPT"
+echo "======================================================"
+
+# Step 1: Show current directory size
+echo "Step 1: Current project size analysis..."
+echo "Total project size:"
+du -sh . 2>/dev/null || echo "Cannot calculate size"
+echo ""
+
+# Step 2: Identify large files
+echo "Step 2: Identifying large files (>10MB)..."
+echo "Large files found:"
+find . -type f -size +10M -not -path "./.git/*" 2>/dev/null | while read file; do
+    size=$(du -h "$file" 2>/dev/null | cut -f1)
+    echo "  📦 $file ($size)"
+done
+echo ""
+
+# Step 3: Check .gitignore exists
+echo "Step 3: Checking .gitignore configuration..."
+if [[ ! -f ".gitignore" ]]; then
+    echo "❌ .gitignore not found! Creating one..."
+    cat > .gitignore << 'EOF'
+# === Dataset and Large Files ===
+# Dataset directories
+smile_dataset/
+FERPlus/
+data/
+datasets/
+
+# Zip files containing datasets
+*.zip
+positives.zip
+negatives.zip
+
+# Trained models
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+smile_resnet18.pt
+
+# Processed data files
+*.npz
+*.npy
+
+# === Video and Image Files ===
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+Smiling_Video.mp4
+output*.avi
+
+# Image files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.tif
+
+# === Python Files ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+
+# === IDE and OS ===
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === Logs and Temp ===
+*.log
+logs/
+temp/
+tmp/
+EOF
+    echo "✅ .gitignore created"
+else
+    echo "✅ .gitignore exists"
+fi
+
+# Step 4: Show what will be excluded
+echo ""
+echo "Step 4: Files that will be excluded from Git..."
+excluded_files=(
+    "smile_dataset"
+    "FERPlus" 
+    "*.zip"
+    "*.pt"
+    "*.mp4"
+    "*.avi"
+    "*.npz"
+)
+
+total_excluded_size=0
+for pattern in "${excluded_files[@]}"; do
+    if ls $pattern 1> /dev/null 2>&1; then
+        echo "🚫 Excluding: $pattern"
+        for file in $pattern; do
+            if [[ -f "$file" ]]; then
+                size_bytes=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+                size_mb=$((size_bytes / 1024 / 1024))
+                total_excluded_size=$((total_excluded_size + size_mb))
+                echo "   📦 $file (${size_mb}MB)"
+            elif [[ -d "$file" ]]; then
+                dir_size=$(du -sm "$file" 2>/dev/null | cut -f1)
+                total_excluded_size=$((total_excluded_size + dir_size))
+                echo "   📁 $file/ (${dir_size}MB)"
+            fi
+        done
+    fi
+done
+
+echo ""
+echo "Total size being excluded: ${total_excluded_size}MB"
+
+# Step 5: Show what will be included in Git
+echo ""
+echo "Step 5: Files that WILL be included in Git..."
+included_files=(
+    "*.py"
+    "*.txt"
+    "*.md" 
+    "*.json"
+    ".gitignore"
+)
+
+echo "✅ Files to be committed:"
+for pattern in "${included_files[@]}"; do
+    if ls $pattern 1> /dev/null 2>&1; then
+        for file in $pattern; do
+            if [[ -f "$file" ]]; then
+                size_kb=$(du -k "$file" 2>/dev/null | cut -f1)
+                echo "   📄 $file (${size_kb}KB)"
+            fi
+        done
+    fi
+done
+
+# Step 6: Git status check
+echo ""
+echo "Step 6: Git repository status..."
+if [[ -d ".git" ]]; then
+    echo "Git status:"
+    git status --porcelain | head -20
+    if [[ $(git status --porcelain | wc -l) -gt 20 ]]; then
+        echo "... and $(( $(git status --porcelain | wc -l) - 20 )) more files"
+    fi
+else
+    echo "⚠️  No Git repository found. Run 'git init' first."
+fi
+
+# Step 7: Recommendations
+echo ""
+echo "======================================================"
+echo "RECOMMENDATIONS"
+echo "======================================================"
+echo ""
+echo "✅ SAFE TO COMMIT (small files):"
+echo "   - All .py source files"
+echo "   - requirements.txt"
+echo "   - README.md" 
+echo "   - .gitignore"
+echo "   - data_config.json"
+echo ""
+echo "🚫 EXCLUDED FROM GIT (large files):"
+echo "   - smile_dataset/ directory"
+echo "   - FERPlus/ directory"
+echo "   - *.zip files"
+echo "   - *.pt model files"
+echo "   - *.mp4 video files"
+echo ""
+echo "📋 NEXT STEPS:"
+echo "1. Upload large files to cloud storage (Google Drive/Dropbox)"
+echo "2. Update URLs in download_data.py"
+echo "3. Commit only source code to GitHub:"
+echo "   git add *.py *.txt *.md *.json .gitignore"
+echo "   git commit -m 'Add source code and documentation'"
+echo "   git push origin main"
+echo ""
+echo "4. Team members can then use:"
+echo "   python download_data.py"
+echo ""
+
+# Step 8: Optional cleanup
+echo "======================================================"
+echo "OPTIONAL: Clean up large files to save space"
+echo "======================================================"
+echo "Do you want to move large files to a backup folder? (y/N)"
+read -r response
+
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    backup_dir="project_backup_$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$backup_dir"
+    
+    echo "Creating backup in: $backup_dir"
+    
+    # Backup large files/directories
+    for item in smile_dataset FERPlus *.zip *.pt *.mp4 *.avi *.npz; do
+        if [[ -e "$item" ]]; then
+            echo "Moving $item to backup..."
+            mv "$item" "$backup_dir/"
+        fi
+    done
+    
+    echo "✅ Large files moved to: $backup_dir"
+    echo "💾 Backup size: $(du -sh $backup_dir | cut -f1)"
+    echo ""
+    echo "You can restore files later with:"
+    echo "mv $backup_dir/* ."
+fi
+
+echo ""
+echo "🎯 Ready for GitHub push!"
+echo "Project is now clean and ready for version control."
