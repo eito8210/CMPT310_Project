@@ -1,33 +1,59 @@
-# Dataset directories
-smile_dataset/
-FERPlus/
-data/
-datasets/
+# ===================================================================
+# CMPT310 Smile Detection Project - .gitignore
+# Optimized to keep essential team datasets while excluding large files
+# ===================================================================
 
-# Zip files containing datasets
-*.zip
-positives.zip
-negatives.zip
+# === Virtual Environments ===
+smile_detection_env/
+venv/
+env/
+.env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+conda-meta/
 
-# Trained models (大きいファイル)
+# === Large Model Files (managed via cloud storage) ===
 *.pt
 *.pth
 *.h5
 *.hdf5
 *.pkl
 *.pickle
+*.model
+*.weights
 smile_resnet18.pt
-model_weights.pth
+model_weights.*
 
-# Processed data files
+# === OpenCV Model Files ===
+*.caffemodel
+*.prototxt
+res10_300x300_ssd_iter_140000.caffemodel
+deploy.prototxt
+
+# === Processed Dataset Files (generated locally) ===
 *.npz
 *.npy
 team_dataset.npz
 fer_dataset.npz
 custom_dataset.npz
 
+# === Dataset Directories (generated/extracted locally) ===
+smile_dataset/
+data/
+datasets/
+fer2013/
+CelebA/
+raw_data/
+processed_data/
+augmented_data/
 
-# Video files
+# === Large CSV Files ===
+fer2013.csv
+fer2013new.csv
+
+# === Video Files ===
 *.mp4
 *.avi
 *.mov
@@ -38,47 +64,30 @@ custom_dataset.npz
 *.m4v
 Smiling_Video.mp4
 output*.avi
+test_video.*
 
-# Image files (all common formats)
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
+# === Large Image Files ===
 *.tiff
 *.tif
-*.webp
-*.svg
-*.ico
 *.raw
 *.cr2
 *.nef
 *.orf
 *.sr2
 
-# Specific image directories
-images/
-photos/
-pictures/
-img/
-assets/images/
+# === Keep These Files in Git ===
+# negatives.zip - Essential team dataset (18.5MB - under GitHub limit)
+# positives.zip - Essential team dataset (8.8MB - under GitHub limit)
+# *.jpg, *.png, *.gif - Small images are OK
 
-# === Python Virtual Environments ===
-# Virtual environment directories
-smile_detection_env/
-venv/
-env/
-.env/
-.venv/
-ENV/
-env.bak/
-venv.bak/
-# Conda environments
-conda-meta/
-# pipenv
-Pipfile.lock
+# === Exclude Other Archive Files ===
+*.tar
+*.tar.gz
+*.rar
+*.7z
+# Note: *.zip commented out to keep negatives.zip and positives.zip
 
-
+# === Python Related ===
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -110,10 +119,6 @@ MANIFEST
 # PyInstaller
 *.manifest
 *.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -152,47 +157,7 @@ poetry.lock
 # PEP 582
 __pypackages__/
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# === エディタ・IDE関連 ===
+# === IDE and Editor Files ===
 # VSCode
 .vscode/
 *.swp
@@ -216,11 +181,27 @@ auto-save-list
 tramp
 .\#*
 
-# === OS関連 ===
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Spyder
+.spyderproject
+.spyproject
+
+# === Operating System Files ===
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Windows
 Thumbs.db
@@ -231,49 +212,75 @@ ehthumbs_vista.db
 *.temp
 Desktop.ini
 $RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
 # Linux
 *~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
 
-# === TensorFlow・PyTorch関連 ===
-# TensorFlow logs
-logs/
+# === Logs and Temporary Files ===
 *.log
-
-# PyTorch checkpoints
-checkpoints/
-*.checkpoint
-
-# Weights & Biases
-wandb/
-
-# === OpenCV関連 ===
-# Haar cascade files (if custom)
-*.xml
-
-# === プロジェクト固有 ===
-# Output files
-output/
-results/
+logs/
+log/
+*.bak
+*.backup
+*.swp
+*.tmp
+*.temp
 temp/
 tmp/
 
-# Configuration files with sensitive data
-config.json
-settings.ini
+# === Machine Learning / AI Related ===
+# Weights & Biases
+wandb/
 
-# Test outputs
-test_output/
-debug_images/
+# TensorBoard
+runs/
+tb_logs/
 
-# Backup files
-*.bak
-*.backup
+# Model checkpoints
+checkpoints/
+*.checkpoint
 
-# === 大きなファイル全般 ===
-# Files larger than 100MB (GitHub's limit)
-*.bin
-*.dat
-*.db
-*.sqlite
-*.sqlite3
+# === Output and Result Files ===
+output/
+results/
+exports/
+models/
+
+# === Cache Directories ===
+.cache/
+*.cache
+
+# === Environment Variables ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===================================================================
+# END OF .gitignore
+# 
+# This configuration:
+# ✅ Keeps essential team datasets (negatives.zip, positives.zip)
+# ✅ Excludes large model files (managed via cloud storage)
+# ✅ Excludes virtual environments (recreated locally)
+# ✅ Excludes generated/processed data (recreated from source data)
+# ✅ Maintains clean, professional repository structure
+# ===================================================================
+# TEAM DATASETS INCLUDED IN GIT:
+# ✅ negatives.zip (18.5MB) - No-smile images dataset
+# ✅ positives.zip (8.8MB) - Smile images dataset  
+# ✅ FERPlus/ (4.2MB) - FER+ dataset with documentation and annotations
+# 
+# Note: FERPlus is INCLUDED in Git for team collaboration
+# ===================================================================
