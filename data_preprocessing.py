@@ -8,7 +8,7 @@ import zipfile
 import tempfile
 import shutil
 
-# TensorFlow/Kerasのインポートをオプションにする
+
 TENSORFLOW_AVAILABLE = False
 KERAS_AVAILABLE = False
 
@@ -25,7 +25,7 @@ except ImportError:
     except ImportError:
         print("⚠️  Neither TensorFlow nor Keras available. Using manual augmentation only.")
 
-# 使用可能フラグ
+
 DATA_AUGMENTATION_AVAILABLE = TENSORFLOW_AVAILABLE or KERAS_AVAILABLE
 
 class SmileDatasetProcessor:
