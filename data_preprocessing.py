@@ -864,15 +864,76 @@ def main():
             print("Please ensure images are placed in the correct directories and run again.")
         
     elif choice == '3':
-        # CelebA workflow
-        celeba_dir = processor.setup_celeba_dataset()
+    # CelebA workflow with optimized settings
+        print("\n=== PROCESSING CELEBA DATASET (OPTIMIZED) ===")
+        
+        # Create optimized processor for CelebA (smaller image size)
+        celeba_processor = SmileDatasetProcessor(data_dir='./smile_dataset', img_size=(32, 32))
+        
+        celeba_dir = celeba_processor.setup_celeba_dataset()
         
         # Process annotations if available
-        smile_labels = processor.process_celeba_annotations(celeba_dir)
+        smile_labels = celeba_processor.process_celeba_annotations(celeba_dir)
         
         if smile_labels:
             print(f"Found {len(smile_labels)} annotated images")
-            # Continue with processing...
+            
+            # Create image paths and labels
+            image_paths = []
+            labels = []
+            
+            images_dir = os.path.join(celeba_dir, 'images')
+            
+            # Check for img_align_celeba folder
+            actual_images_dir = os.path.join(images_dir, 'img_align_celeba')
+            if os.path.exists(actual_images_dir):
+                images_dir = actual_images_dir
+            
+            print("Collecting CelebA image paths...")
+            for filename, smile_label in tqdm(smile_labels.items(), desc="Processing images"):
+                img_path = os.path.join(images_dir, filename)
+                if os.path.exists(img_path):
+                    image_paths.append(img_path)
+                    labels.append(smile_label)
+            
+            if image_paths:
+                print(f"Found {len(image_paths)} valid images")
+                
+                # Preprocess images with smaller batch size for CelebA
+                print("Preprocessing CelebA images (optimized settings)...")
+                X, y = celeba_processor.preprocess_image_batch(image_paths, labels, batch_size=50)
+                
+                if len(X) > 0:
+                    print("Balancing CelebA dataset...")
+                    X_balanced, y_balanced = celeba_processor.balance_dataset(X, y)
+                    
+                    print("Creating train/validation split...")
+                    X_train, X_val, y_train, y_val = celeba_processor.create_train_validation_split(X_balanced, y_balanced)
+                    
+                    print("Applying data augmentation...")
+                    if DATA_AUGMENTATION_AVAILABLE:
+                        X_train_aug, y_train_aug = celeba_processor.apply_augmentation(X_train, y_train, augmentation_factor=2)
+                    else:
+                        X_train_aug, y_train_aug = celeba_processor._manual_augmentation(X_train, y_train, augmentation_factor=2)
+                    
+                    # Save processed dataset
+                    celeba_processor.save_processed_dataset(X_train_aug, X_val, y_train_aug, y_val, 'celeba_dataset.npz')
+                    
+                    # Generate report
+                    celeba_processor.generate_dataset_report(X_train_aug, X_val, y_train_aug, y_val)
+                    
+                    # Visualize samples
+                    celeba_processor.visualize_dataset_samples(X_train_aug, y_train_aug, num_samples=16, title="CelebA Dataset Samples")
+                    
+                    print("\n✅ CelebA dataset processing completed successfully!")
+                    print("📊 Dataset ready for CNN training (Seungyeop's part)")
+                    print("💾 Processed data saved as 'celeba_dataset.npz'")
+                else:
+                    print("❌ No valid images after preprocessing")
+            else:
+                print("❌ No valid images found")
+        else:
+            print("❌ No annotations found")
         
     elif choice == '4':
         # Custom images workflow (enhanced)
