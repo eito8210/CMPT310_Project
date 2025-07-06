@@ -1023,9 +1023,12 @@ def main():
         print("✅ Option 1 (Team Zip): Ready for CNN training")
     elif choice == '2':
         print("✅ Option 2 (FER+): Ready for CNN training") 
-    else:
-        print("🔄 Option 3 (CelebA): Download dataset and rerun") 
+    elif choice == '3':
+        print("✅ Option 3 (CelebA): Ready for CNN training") 
+    elif choice == '4':
         print("🔄 Option 4 (Custom): Add images and rerun")
+    else:
+        print("Invalid choice. Please run again and select 1-4.")
     
     print("\nFinal step: Train CNN model with Seungyeop's code")
     print("Use fer_dataset.npz or team_dataset.npz for training")
