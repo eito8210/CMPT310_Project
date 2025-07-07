@@ -868,7 +868,7 @@ def main():
         print("\n=== PROCESSING CELEBA DATASET (OPTIMIZED) ===")
         
         # Create optimized processor for CelebA (smaller image size)
-        celeba_processor = SmileDatasetProcessor(data_dir='./smile_dataset', img_size=(32, 32))
+        celeba_processor = SmileDatasetProcessor(data_dir='./smile_dataset', img_size=(64, 64))
         
         celeba_dir = celeba_processor.setup_celeba_dataset()
         
