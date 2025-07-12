@@ -10,7 +10,7 @@ from data_preprocessing import SmileDatasetProcessor
 
 # === Config ===
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 20 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def convert_to_torch_dataset(X, y):

@@ -15,14 +15,13 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 weights = ResNet18_Weights.DEFAULT
 model = resnet18(weights=weights)
 model.fc = nn.Linear(model.fc.in_features, 2)
-model.load_state_dict(torch.load("smile_resnet18.pt", map_location=DEVICE))
+model.load_state_dict(torch.load("smile_resnet18_best.pt", map_location=DEVICE))  # ← Changed to best model
 model.to(DEVICE).eval()
 
-# === 2. Inference-time transform (grayscale → 3-ch) ===
+# === 2. Inference-time transform (no grayscale conversion) ===
 transform = transforms.Compose([
     transforms.ToPILImage(),                        
-    transforms.Grayscale(num_output_channels=3),    
-    transforms.Resize((224, 224)),                  
+    transforms.Resize((64, 64)),                    # Match training data size
     transforms.ToTensor(),                          
     transforms.Normalize(                           
         mean=[0.485, 0.456, 0.406],
@@ -66,7 +65,7 @@ face_time = 0.0
 smile_time = 0.0
 
 # === 6. Main Loop ===
-SMILE_THRESH = 0.03  # probability threshold
+SMILE_THRESH = 0.1# Lowered threshold for better detection
 
 while True:
     ret, frame = cap.read()
@@ -86,7 +85,7 @@ while True:
     best_area = 0
     for i in range(dets.shape[2]):
         conf = dets[0, 0, i, 2]
-        if conf < 0.5:
+        if conf < 0.7:
             continue
         x1, y1, x2, y2 = (dets[0,0,i,3:7] * [W, H, W, H]).astype(int)
         area = (x2 - x1)*(y2 - y1)
