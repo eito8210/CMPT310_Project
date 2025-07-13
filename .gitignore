@@ -2,3 +2,6 @@
 *.jpg
 *.jpeg
 *.png
+
+#Ignore macOS junk files
+.DS_Store
