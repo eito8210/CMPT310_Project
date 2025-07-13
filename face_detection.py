@@ -32,7 +32,6 @@ while True:
         except Exception as e:
             print("Face preprocessing failed:", e)
 
-
     cv2.imshow('Smile Detection', frame)
 
     if cv2.waitKey(1) == ord('q'):
