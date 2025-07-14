@@ -42,7 +42,7 @@ while True:
     # The first number is called the scale factor
     #second number is called min neuighbours,the higher the numebr aka 7 it might not detect face
     # if its at like 3 it might give like random boxes (its more sensitive)
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
 
     
     # JAKES FACE SCORE CODE: this is where I am setting up how I will subtract the time where no face is detected
