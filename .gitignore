@@ -1,7 +1,125 @@
-#Ignore all image files
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+tf_env/
+venv/
+ENV/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Machine Learning Models
+*.keras
+*.h5
+*.pkl
+*.joblib
+*.model
+*.weights
+model/
+models/
+checkpoints/
+
+# Data files
+*.csv
+*.json
+*.xml
+data/
+dataset/
+datasets/
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+tensorboard_logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Configuration files with sensitive data
+config.py
+settings.py
+secrets.py
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Camera/Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
 *.jpg
 *.jpeg
 *.png
+*.gif
+*.bmp
+*.tiff
 
-#Ignore macOS junk files
-.DS_Store
+# Audio files
+*.wav
+*.mp3
+*.flac
+*.aac
+
+# Large files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
