@@ -9,7 +9,7 @@ from tensorflow.keras.layers import Dense
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
+ 
 valid_formats = [".jpg", ".jpeg", ".png"]
 
 def image_paths(root):
