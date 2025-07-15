@@ -1,9 +1,21 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# ====================
+
+# 🔧 Python
+
+# ====================
+
+**pycache**/
+\*.py\[cod]
+\*\$py.class
+\*.so
 .Python
+
+# ====================
+
+# 🛠 Build Artifacts
+
+# ====================
+
 build/
 develop-eggs/
 dist/
@@ -16,71 +28,137 @@ parts/
 sdist/
 var/
 wheels/
-*.egg-info/
+\*.egg-info/
 .installed.cfg
-*.egg
+\*.egg
 MANIFEST
 
-# Virtual Environment
+# ====================
+
+# 🐍 Virtual Environment
+
+# ====================
+
 .venv/
-tf_env/
 venv/
 ENV/
 env/
+tf\_env/
 .env
 
-# IDE
+# ====================
+
+# 💻 IDE & Editor
+
+# ====================
+
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
+\*.swp
+\*.swo
+\*\~
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# ====================
 
-# Machine Learning Models
-*.keras
-*.h5
-*.pkl
-*.joblib
-*.model
-*.weights
+# 📒 Jupyter
+
+# ====================
+
+.ipynb\_checkpoints
+
+# ====================
+
+# 🤖 Machine Learning Models
+
+# ====================
+
+\*.keras
+\*.h5
+\*.pkl
+\*.joblib
+\*.model
+\*.weights
 model/
 models/
 checkpoints/
 
-# Data files
-*.csv
-*.json
-*.xml
+# ====================
+
+# 📊 Data Files
+
+# ====================
+
+\*.csv
+\*.json
+\*.xml
+\*.db
+\*.sqlite
 data/
 dataset/
 datasets/
-*.db
-*.sqlite
+smile\_data/
+smile\_dataset/
+FERPlus/
 
-# Logs
+# ====================
+
+# 📦 Node.js (Next.js + Bun)
+
+# ====================
+
+node\_modules/
+\*\*/node\_modules/
+.next/
+out/
+build/
+.bun/
+bun.lockb
+
+# ====================
+
+# 💨 Logs & Debug
+
+# ====================
+
 *.log
 logs/
-tensorboard_logs/
+tensorboard\_logs/
+npm-debug.log*
+yarn-debug.log\*
+yarn-error.log\*
+pnpm-debug.log\*
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
+# ====================
+
+# 🌍 System & OS
+
+# ====================
+
+.DS\_Store
+.DS\_Store?
+.\_\*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
+# ====================
+
+# ⏳ Temp
+
+# ====================
+
+\*.tmp
+\*.temp
 temp/
 tmp/
 
-# Configuration files with sensitive data
+# ====================
+
+# 🔐 Sensitive Config
+
+# ====================
+
 config.py
 settings.py
 secrets.py
@@ -88,38 +166,92 @@ secrets.py
 .env.development.local
 .env.test.local
 .env.production.local
+.env\*
 
-# Camera/Video files
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
+# ====================
 
-# Audio files
-*.wav
-*.mp3
-*.flac
-*.aac
+# 📷 Camera / Images
 
-# Large files
-*.zip
-*.tar
-*.tar.gz
-*.rar
-*.7z
+# ====================
 
-# pytest
-.pytest_cache/
+\*.mp4
+\*.avi
+\*.mov
+\*.mkv
+\*.jpg
+\*.jpeg
+\*.png
+\*.gif
+\*.bmp
+\*.tiff
+
+# ====================
+
+# 🔉 Audio
+
+# ====================
+
+\*.wav
+\*.mp3
+\*.flac
+\*.aac
+
+# ====================
+
+# 🗜️ Archives & Binaries
+
+# ====================
+
+\*.zip
+\*.tar
+\*.tar.gz
+\*.rar
+\*.7z
+\*.bin
+\*.exe
+
+# ====================
+
+# ✅ Test Tools
+
+# ====================
+
+.pytest\_cache/
 .coverage
 htmlcov/
 
-# mypy
-.mypy_cache/
+# ====================
+
+# 🧠 mypy
+
+# ====================
+
+.mypy\_cache/
 .dmypy.json
 dmypy.json
+
+# ====================
+
+# 🧪 TypeScript
+
+# ====================
+
+\*.tsbuildinfo
+next-env.d.ts
+
+# ====================
+
+# ☁️ Vercel
+
+# ====================
+
+.vercel
+
+# ====================
+
+# 📄 Optional
+
+# ====================
+
+package-lock.json
+pnpm-lock.yaml
