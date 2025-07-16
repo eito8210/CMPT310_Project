@@ -8,6 +8,7 @@ import { WebcamDisplay } from "./webcam-display"
 import { ControlPanel } from "./control-panel"
 import { StatsDisplay } from "./stats-display"
 import { Separator } from "../ui/separator"
+import { ThemeToggleButton } from "../theme-toggle-button"
 
 export function SmileTrackerCard() {
   const videoRef = useRef<HTMLVideoElement>(null!)
@@ -18,7 +19,10 @@ export function SmileTrackerCard() {
 
   return (
     <Card className="w-full max-w-6xl mx-auto shadow-2xl overflow-hidden">
-      <CardHeader className="text-center p-6 border-b">
+      <CardHeader className="relative text-center p-6 border-b">
+        <div className="absolute top-4 right-4">
+          <ThemeToggleButton />
+        </div>
         <CardTitle className="text-3xl font-bold">Smile Engagement Tracker</CardTitle>
         <CardDescription className="text-lg text-muted-foreground pt-2">
           Turn on your webcam to analyze your engagement.
