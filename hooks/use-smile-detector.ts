@@ -88,14 +88,40 @@ export function useSmileDetector(
       if (canvasRef.current && videoRef.current && detectionData.faceDetected) {
         const canvas = canvasRef.current
         const ctx = canvas.getContext("2d")
+        const video = videoRef.current
+        
         if (ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-          // 顔検出を示す矩形を描画
-          const x = canvas.width * 0.3
-          const y = canvas.height * 0.2
-          const width = canvas.width * 0.4
-          const height = canvas.height * 0.6
+          // 表示サイズに基づいて矩形を描画
+          const displayWidth = canvas.width
+          const displayHeight = canvas.height
+          
+          // ビデオのアスペクト比を考慮した実際の表示領域を計算
+          const videoAspectRatio = video.videoWidth / video.videoHeight
+          const displayAspectRatio = displayWidth / displayHeight
+          
+          let actualVideoWidth, actualVideoHeight, offsetX, offsetY
+          
+          if (videoAspectRatio > displayAspectRatio) {
+            // ビデオが横長の場合
+            actualVideoWidth = displayWidth
+            actualVideoHeight = displayWidth / videoAspectRatio
+            offsetX = 0
+            offsetY = (displayHeight - actualVideoHeight) / 2
+          } else {
+            // ビデオが縦長の場合
+            actualVideoWidth = displayHeight * videoAspectRatio
+            actualVideoHeight = displayHeight
+            offsetX = (displayWidth - actualVideoWidth) / 2
+            offsetY = 0
+          }
+
+          // 顔検出矩形を実際のビデオ表示領域内に描画
+          const x = offsetX + actualVideoWidth * 0.3
+          const y = offsetY + actualVideoHeight * 0.2
+          const width = actualVideoWidth * 0.4
+          const height = actualVideoHeight * 0.6
 
           ctx.strokeStyle = detectionData.smiling ? "#22c55e" : "#3b82f6"
           ctx.lineWidth = 3
@@ -127,7 +153,12 @@ export function useSmileDetector(
       // ウェブカメラを開始
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480 },
+          video: { 
+            width: { ideal: 640, max: 1280 },
+            height: { ideal: 480, max: 720 },
+            frameRate: { ideal: 30, max: 30 },
+            aspectRatio: { ideal: 4/3 }
+          }
         })
         setVideoStream(stream)
         if (videoRef.current) {

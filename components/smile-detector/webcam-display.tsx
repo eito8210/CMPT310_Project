@@ -15,15 +15,36 @@ export function WebcamDisplay({ videoRef, canvasRef, videoStream }: WebcamDispla
         autoPlay
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         onLoadedMetadata={() => {
           if (videoRef.current && canvasRef.current) {
-            canvasRef.current.width = videoRef.current.videoWidth
-            canvasRef.current.height = videoRef.current.videoHeight
+            const video = videoRef.current
+            const canvas = canvasRef.current
+            
+            // 表示サイズを取得
+            const displayWidth = video.clientWidth
+            const displayHeight = video.clientHeight
+            
+            // キャンバスサイズを表示サイズに合わせる（重要な修正点）
+            canvas.width = displayWidth
+            canvas.height = displayHeight
+            
+            // キャンバスの表示サイズも同じに設定
+            canvas.style.width = `${displayWidth}px`
+            canvas.style.height = `${displayHeight}px`
+            
+            console.log("Video display setup:", {
+              videoActual: { width: video.videoWidth, height: video.videoHeight },
+              display: { width: displayWidth, height: displayHeight },
+              canvas: { width: canvas.width, height: canvas.height }
+            })
           }
         }}
       />
-      <canvas ref={canvasRef} className="absolute top-0 left-0" />
+      <canvas 
+        ref={canvasRef} 
+        className="absolute top-0 left-0 pointer-events-none"
+      />
       {!videoStream && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
           <VideoOff className="w-16 h-16 text-white" />
