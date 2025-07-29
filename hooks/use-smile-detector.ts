@@ -1,356 +1,189 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect, useCallback } from "react"
+
+import { useState, useEffect, useCallback, useRef } from "react"
+
+type Detection = {
+  faceDetected: boolean
+  smiling: boolean
+  confidence: number
+}
+
+type Stats = {
+  totalTime: number
+  faceTime: number
+  smileTime: number
+  engagement: number
+}
 
 export function useSmileDetector(
   videoRef: React.RefObject<HTMLVideoElement>,
   canvasRef: React.RefObject<HTMLCanvasElement>,
 ) {
   const [modelsLoaded, setModelsLoaded] = useState(false)
+  const [modelError, setModelError] = useState<string | null>(null)
   const [isDetecting, setIsDetecting] = useState(false)
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null)
-  const [modelError, setModelError] = useState<string | null>(null)
-  const [stats, setStats] = useState({
+  const [lastDetection, setLastDetection] = useState<Detection | null>(null)
+  const [stats, setStats] = useState<Stats>({
     totalTime: 0,
     faceTime: 0,
     smileTime: 0,
     engagement: 0,
   })
 
-  // 統計保持フラグを追加
-  const [preserveStats, setPreserveStats] = useState(false)
+  const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const startTimeRef = useRef<number>(0)
+  const faceTimeRef = useRef<number>(0)
+  const smileTimeRef = useRef<number>(0)
 
-  const wsRef = useRef<WebSocket | null>(null)
-  const frameIntervalRef = useRef<number | undefined>(undefined)
-  const reconnectTimeoutRef = useRef<number | undefined>(undefined)
-  const isConnectingRef = useRef(false)
-
-  // Check Python backend health and model status
+  // Simulate model loading
   useEffect(() => {
-    let isMounted = true
-
-    const checkBackend = async () => {
+    const loadModels = async () => {
       try {
-        console.log("Checking backend health...")
-        const response = await fetch("http://localhost:8000/health")
-        const data = await response.json()
-        console.log("Backend response:", data)
-
-        if (isMounted) {
-          if (data.models_loaded) {
-            setModelsLoaded(true)
-            setModelError(null)
-          } else {
-            setModelError("Python models not loaded on backend")
-          }
-        }
+        // Simulate loading time
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        setModelsLoaded(true)
       } catch (error) {
-        console.error("Backend connection error:", error)
-        if (isMounted) {
-          setModelError("Cannot connect to Python backend. Please ensure FastAPI server is running on port 8000.")
-        }
+        setModelError("Failed to load face recognition models")
       }
     }
-
-    checkBackend()
-
-    return () => {
-      isMounted = false
-    }
+    loadModels()
   }, [])
 
-  // Initialize WebSocket connection with improved stability
-  const initWebSocket = useCallback(() => {
-    if (isConnectingRef.current || wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log("WebSocket already connected or connecting")
-      return
+  const toggleWebcam = useCallback(async () => {
+    if (videoStream) {
+      // Stop webcam
+      videoStream.getTracks().forEach((track) => track.stop())
+      setVideoStream(null)
+      if (videoRef.current) {
+        videoRef.current.srcObject = null
+      }
+    } else {
+      // Start webcam
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480 },
+        })
+        setVideoStream(stream)
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+        }
+      } catch (error) {
+        setModelError("Failed to access webcam")
+      }
+    }
+  }, [videoStream, videoRef])
+
+  const simulateDetection = useCallback(() => {
+    // Simulate face and smile detection with random values
+    const faceDetected = Math.random() > 0.2 // 80% chance of face detection
+    const smiling = faceDetected && Math.random() > 0.4 // 60% chance of smiling when face detected
+    const confidence = faceDetected ? 0.7 + Math.random() * 0.3 : 0
+
+    const detection: Detection = {
+      faceDetected,
+      smiling,
+      confidence,
     }
 
-    isConnectingRef.current = true
-    console.log("Attempting to connect to WebSocket...")
+    setLastDetection(detection)
 
-    try {
-      wsRef.current = new WebSocket("ws://localhost:8000/ws/smile-detection")
+    // Update stats
+    const currentTime = Date.now()
+    const elapsed = (currentTime - startTimeRef.current) / 1000
 
-      wsRef.current.onopen = () => {
-        console.log("✅ WebSocket connected successfully")
-        isConnectingRef.current = false
-        setModelError(null)
-      }
+    if (faceDetected) {
+      faceTimeRef.current += 1
+    }
+    if (smiling) {
+      smileTimeRef.current += 1
+    }
 
-      wsRef.current.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data)
-          console.log("📨 Received WebSocket message:", message.type, message)
+    const newStats: Stats = {
+      totalTime: elapsed,
+      faceTime: faceTimeRef.current,
+      smileTime: smileTimeRef.current,
+      engagement: elapsed > 0 ? (smileTimeRef.current / elapsed) * 100 : 0,
+    }
 
-          if (message.type === "detection" && message.data) {
-            const { detections, stats: newStats } = message.data
-            console.log("🎯 Detection data received:", { detections, stats: newStats })
+    setStats(newStats)
 
-            // Update stats from Python backend
-            if (newStats) {
-              console.log("📊 Updating stats:", newStats)
-              setStats({
-                totalTime: newStats.totalTime,
-                faceTime: newStats.faceTime,
-                smileTime: newStats.smileTime,
-                engagement: newStats.engagement,
-              })
-            }
+    // Draw detection on canvas
+    if (canvasRef.current && videoRef.current) {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext("2d")
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-            // Draw detections on canvas
-            if (canvasRef.current && detections && detections.length > 0) {
-              const canvas = canvasRef.current
-              const ctx = canvas.getContext("2d")
-              if (ctx) {
-                console.log("🎨 Drawing", detections.length, "detections")
-                ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (faceDetected) {
+          // Draw a simple rectangle to simulate face detection
+          const x = canvas.width * 0.3
+          const y = canvas.height * 0.2
+          const width = canvas.width * 0.4
+          const height = canvas.height * 0.6
 
-                detections.forEach((detection: any, index: number) => {
-                  const { x, y, width, height, isSmiling, label } = detection
-                  console.log(`✏️ Drawing detection ${index + 1}:`, { x, y, width, height, isSmiling, label })
+          ctx.strokeStyle = smiling ? "#22c55e" : "#3b82f6"
+          ctx.lineWidth = 3
+          ctx.strokeRect(x, y, width, height)
 
-                  // Draw rectangle
-                  ctx.strokeStyle = isSmiling ? "#00ff00" : "#ff0000"
-                  ctx.lineWidth = 3
-                  ctx.strokeRect(x, y, width, height)
-
-                  // Draw label with background
-                  ctx.fillStyle = isSmiling ? "#00ff00" : "#ff0000"
-                  ctx.font = "16px Arial"
-
-                  const textMetrics = ctx.measureText(label)
-                  ctx.fillRect(x, y - 25, textMetrics.width + 10, 20)
-
-                  ctx.fillStyle = "white"
-                  ctx.fillText(label, x + 5, y - 10)
-                })
-              }
-            } else {
-              console.log("❌ No detections or canvas not available")
-            }
-          } else if (message.type === "stopped" && message.finalStats) {
-            console.log("⏹️ Detection stopped, final stats:", message.finalStats)
-            // 最終統計が有効な場合のみ更新（0でない場合）
-            if (message.finalStats.totalTime > 0) {
-              setStats({
-                totalTime: message.finalStats.totalTime,
-                faceTime: message.finalStats.faceTime,
-                smileTime: message.finalStats.smileTime,
-                engagement: message.finalStats.engagement,
-              })
-            }
-            // 統計が0の場合は現在の値を保持
-          } else if (message.type === "started") {
-            console.log("🚀 Detection started confirmation received")
-          }
-        } catch (error) {
-          console.error("Error parsing WebSocket message:", error)
+          // Draw label
+          ctx.fillStyle = smiling ? "#22c55e" : "#3b82f6"
+          ctx.font = "16px Arial"
+          ctx.fillText(
+            smiling
+              ? `Smiling (${(confidence * 100).toFixed(0)}%)`
+              : `Face Detected (${(confidence * 100).toFixed(0)}%)`,
+            x,
+            y - 10,
+          )
         }
       }
+    }
+  }, [canvasRef, videoRef])
 
-      wsRef.current.onerror = (error) => {
-        console.error("❌ WebSocket error:", error)
-        isConnectingRef.current = false
-        setModelError("WebSocket connection failed. Check if FastAPI server is running.")
-      }
+  const startDetection = useCallback(() => {
+    if (!videoStream || isDetecting) return
 
-      wsRef.current.onclose = (event) => {
-        console.log("WebSocket closed:", event.code, event.reason)
-        isConnectingRef.current = false
+    setIsDetecting(true)
+    startTimeRef.current = Date.now()
+    faceTimeRef.current = 0
+    smileTimeRef.current = 0
+
+    detectionIntervalRef.current = setInterval(simulateDetection, 100)
+  }, [videoStream, isDetecting, simulateDetection])
+
+  const stopDetection = useCallback(() => {
+    setIsDetecting(false)
+    if (detectionIntervalRef.current) {
+      clearInterval(detectionIntervalRef.current)
+      detectionIntervalRef.current = null
+    }
+
+    // Clear canvas
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d")
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
       }
-    } catch (error) {
-      console.error("Failed to create WebSocket:", error)
-      isConnectingRef.current = false
-      setModelError("Failed to initialize WebSocket connection")
     }
   }, [canvasRef])
 
-  const stopWebcam = useCallback(() => {
-    console.log("Stopping webcam...")
-    setIsDetecting(false)
-
-    if (videoStream) {
-      videoStream.getTracks().forEach((track) => track.stop())
-      setVideoStream(null)
-    }
-
-    if (frameIntervalRef.current) {
-      window.clearInterval(frameIntervalRef.current)
-      frameIntervalRef.current = undefined
-    }
-
-    if (reconnectTimeoutRef.current) {
-      window.clearTimeout(reconnectTimeoutRef.current)
-      reconnectTimeoutRef.current = undefined
-    }
-
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.close(1000, "Stopping webcam")
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (detectionIntervalRef.current) {
+        clearInterval(detectionIntervalRef.current)
+      }
+      if (videoStream) {
+        videoStream.getTracks().forEach((track) => track.stop())
+      }
     }
   }, [videoStream])
 
-  useEffect(() => {
-    return () => {
-      console.log("Component unmounting - cleaning up...")
-      stopWebcam()
-    }
-  }, [stopWebcam])
-
-  const startWebcam = async () => {
-    try {
-      console.log("Starting webcam...")
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-        },
-      })
-      setVideoStream(stream)
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
-      console.log("✅ Webcam started successfully")
-    } catch (error) {
-      console.error("Failed to access webcam:", error)
-      setModelError("Failed to access webcam. Please allow camera permissions.")
-    }
-  }
-
-  const toggleWebcam = async () => {
-    if (videoStream) {
-      stopWebcam()
-    } else {
-      await startWebcam()
-    }
-  }
-
-  // Capture frame and send to Python backend
-  const captureFrame = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current || !wsRef.current) {
-      console.log("Missing refs for frame capture")
-      return
-    }
-    if (wsRef.current.readyState !== WebSocket.OPEN) {
-      console.log("WebSocket not open for frame capture")
-      return
-    }
-
-    const video = videoRef.current
-    const canvas = canvasRef.current
-
-    // Check if video is ready
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-      console.log("Video not ready yet")
-      return
-    }
-
-    // Set canvas size to match video
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-
-    // Capture frame
-    const ctx = canvas.getContext("2d")
-    if (ctx) {
-      ctx.drawImage(video, 0, 0)
-      const frameData = canvas.toDataURL("image/jpeg", 0.8)
-
-      console.log("Sending frame to backend, size:", frameData.length)
-
-      // Send frame to Python backend
-      try {
-        wsRef.current.send(
-          JSON.stringify({
-            type: "frame",
-            data: frameData,
-          }),
-        )
-      } catch (error) {
-        console.error("Error sending frame:", error)
-      }
-    }
-  }, [videoRef, canvasRef])
-
-  const startDetection = () => {
-    console.log("Start detection called", {
-      videoStream: !!videoStream,
-      modelsLoaded,
-      wsState: wsRef.current?.readyState,
-    })
-
-    if (!videoStream || !modelsLoaded) {
-      console.log("Cannot start detection: videoStream =", !!videoStream, "modelsLoaded =", modelsLoaded)
-      return
-    }
-
-    // WebSocket接続を確立
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.log("Initializing WebSocket for detection...")
-      initWebSocket()
-
-      // WebSocket接続を待ってから再試行
-      setTimeout(() => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          startDetection()
-        }
-      }, 1000)
-      return
-    }
-
-    console.log("Starting detection...")
-    setIsDetecting(true)
-    setPreserveStats(false) // 保持フラグをリセット
-
-    // 新しい検出開始時のみ統計をリセット
-    console.log("🔄 Resetting stats for new detection session")
-    setStats({ totalTime: 0, faceTime: 0, smileTime: 0, engagement: 0 })
-
-    // Send start signal to Python backend
-    try {
-      wsRef.current.send(JSON.stringify({ type: "start" }))
-      console.log("Sent start signal to backend")
-    } catch (error) {
-      console.error("Error sending start signal:", error)
-      return
-    }
-
-    // Start capturing frames and sending to Python backend
-    frameIntervalRef.current = window.setInterval(captureFrame, 500) // 2 FPS for debugging
-    console.log("Started frame capture interval")
-  }
-
-  const stopDetection = () => {
-    console.log("Stopping detection...")
-    setIsDetecting(false)
-    setPreserveStats(true) // 統計保持フラグを設定
-
-    if (frameIntervalRef.current) {
-      window.clearInterval(frameIntervalRef.current)
-      frameIntervalRef.current = undefined
-    }
-
-    // Send stop signal to Python backend
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      try {
-        wsRef.current.send(JSON.stringify({ type: "stop" }))
-        console.log("Sent stop signal to backend")
-      } catch (error) {
-        console.error("Error sending stop signal:", error)
-      }
-    }
-
-    // Clear canvas but preserve stats
-    if (canvasRef.current) {
-      const context = canvasRef.current.getContext("2d")
-      context?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-    }
-
-    // 統計は保持される - リセットしない
-    console.log("📊 Stats preserved after stop:", stats)
-  }
-
   return {
+    lastDetection,
     modelsLoaded,
     isDetecting,
     videoStream,

@@ -14,8 +14,17 @@ export function SmileTrackerCard() {
   const videoRef = useRef<HTMLVideoElement>(null!)
   const canvasRef = useRef<HTMLCanvasElement>(null!)
 
-  const { modelsLoaded, isDetecting, videoStream, modelError, stats, toggleWebcam, startDetection, stopDetection } =
-    useSmileDetector(videoRef, canvasRef)
+  const {
+    lastDetection,
+    modelsLoaded,
+    isDetecting,
+    videoStream,
+    modelError,
+    stats,
+    toggleWebcam,
+    startDetection,
+    stopDetection,
+  } = useSmileDetector(videoRef, canvasRef)
 
   return (
     <Card className="w-full max-w-6xl mx-auto shadow-2xl overflow-hidden">

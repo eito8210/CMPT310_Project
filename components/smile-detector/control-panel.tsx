@@ -30,7 +30,7 @@ export function ControlPanel({
         disabled={!modelsLoaded || !!modelError}
         className="py-6 text-lg bg-transparent"
       >
-        <VideoOff className="mr-2 h-5 w-5" />
+        {videoStream ? <VideoOff className="mr-2 h-5 w-5" /> : <Video className="mr-2 h-5 w-5" />}
         {videoStream ? "Stop Cam" : "Start Cam"}
       </Button>
       <Button onClick={startDetection} disabled={!videoStream || isDetecting || !!modelError} className="py-6 text-lg">
