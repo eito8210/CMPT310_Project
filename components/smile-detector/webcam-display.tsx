@@ -1,5 +1,5 @@
 import type React from "react"
-import { VideoOff } from "lucide-react"
+import { VideoOff, Play } from "lucide-react"
 
 type WebcamDisplayProps = {
   videoRef: React.RefObject<HTMLVideoElement>
@@ -25,19 +25,13 @@ export function WebcamDisplay({ videoRef, canvasRef, videoStream }: WebcamDispla
             const displayWidth = video.clientWidth
             const displayHeight = video.clientHeight
             
-            // キャンバスサイズを表示サイズに合わせる（重要な修正点）
+            // キャンバスサイズを表示サイズに合わせる
             canvas.width = displayWidth
             canvas.height = displayHeight
             
             // キャンバスの表示サイズも同じに設定
             canvas.style.width = `${displayWidth}px`
             canvas.style.height = `${displayHeight}px`
-            
-            console.log("Video display setup:", {
-              videoActual: { width: video.videoWidth, height: video.videoHeight },
-              display: { width: displayWidth, height: displayHeight },
-              canvas: { width: canvas.width, height: canvas.height }
-            })
           }
         }}
       />
@@ -46,8 +40,10 @@ export function WebcamDisplay({ videoRef, canvasRef, videoStream }: WebcamDispla
         className="absolute top-0 left-0 pointer-events-none"
       />
       {!videoStream && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <VideoOff className="w-16 h-16 text-white" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 text-white">
+          <Play className="w-16 h-16 mb-4 opacity-70" />
+          <p className="text-lg font-medium">Press Start to begin</p>
+          <p className="text-sm opacity-70 mt-1">Camera will activate automatically</p>
         </div>
       )}
     </div>

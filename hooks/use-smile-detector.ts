@@ -34,11 +34,11 @@ export function useSmileDetector(
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Pythonモデルの初期化
+  // Initialize Python models
   useEffect(() => {
     const initializeModels = async () => {
       try {
-        setModelError("Pythonサーバーに接続中...")
+        setModelError("Connecting to Python server...")
 
         const response = await fetch("/api/python/initialize", {
           method: "POST",
@@ -50,24 +50,24 @@ export function useSmileDetector(
           setModelsLoaded(true)
           setModelError(null)
         } else {
-          setModelError("顔認識モデルの初期化に失敗しました")
+          setModelError("Failed to initialize face recognition models")
         }
       } catch (error) {
-        setModelError("Pythonサーバーに接続できません。face_detection_api.pyが実行されているか確認してください。")
+        setModelError("Cannot connect to Python server. Please check if face_detection_api.py is running.")
       }
     }
 
     initializeModels()
   }, [])
 
-  // 検出データのポーリング
+  // Poll detection data
   const pollDetectionData = useCallback(async () => {
     try {
-      // 現在の検出結果を取得
+      // Get current detection results
       const detectionResponse = await fetch("/api/python/detection")
       const detectionData = await detectionResponse.json()
 
-      // 現在の統計を取得
+      // Get current statistics
       const statsResponse = await fetch("/api/python/stats")
       const statsData = await statsResponse.json()
 
@@ -84,7 +84,7 @@ export function useSmileDetector(
         engagement: statsData.engagement,
       })
 
-      // キャンバスに検出結果を描画
+      // Draw detection results on canvas
       if (canvasRef.current && videoRef.current && detectionData.faceDetected) {
         const canvas = canvasRef.current
         const ctx = canvas.getContext("2d")
@@ -93,31 +93,31 @@ export function useSmileDetector(
         if (ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-          // 表示サイズに基づいて矩形を描画
+          // Draw rectangle based on display size
           const displayWidth = canvas.width
           const displayHeight = canvas.height
           
-          // ビデオのアスペクト比を考慮した実際の表示領域を計算
+          // Calculate actual display area considering video aspect ratio
           const videoAspectRatio = video.videoWidth / video.videoHeight
           const displayAspectRatio = displayWidth / displayHeight
           
           let actualVideoWidth, actualVideoHeight, offsetX, offsetY
           
           if (videoAspectRatio > displayAspectRatio) {
-            // ビデオが横長の場合
+            // Video is wider
             actualVideoWidth = displayWidth
             actualVideoHeight = displayWidth / videoAspectRatio
             offsetX = 0
             offsetY = (displayHeight - actualVideoHeight) / 2
           } else {
-            // ビデオが縦長の場合
+            // Video is taller
             actualVideoWidth = displayHeight * videoAspectRatio
             actualVideoHeight = displayHeight
             offsetX = (displayWidth - actualVideoWidth) / 2
             offsetY = 0
           }
 
-          // 顔検出矩形を実際のビデオ表示領域内に描画
+          // Draw face detection rectangle within actual video display area
           const x = offsetX + actualVideoWidth * 0.3
           const y = offsetY + actualVideoHeight * 0.2
           const width = actualVideoWidth * 0.4
@@ -127,53 +127,80 @@ export function useSmileDetector(
           ctx.lineWidth = 3
           ctx.strokeRect(x, y, width, height)
 
-          // ラベルを描画
+          // Draw label
           ctx.fillStyle = detectionData.smiling ? "#22c55e" : "#3b82f6"
           ctx.font = "16px Arial"
           const label = detectionData.smiling
-            ? `笑顔検出 (${(detectionData.confidence * 100).toFixed(0)}%)`
-            : `顔検出 (${(detectionData.confidence * 100).toFixed(0)}%)`
+            ? `Smile Detected (${(detectionData.confidence * 100).toFixed(0)}%)`
+            : `Face Detected (${(detectionData.confidence * 100).toFixed(0)}%)`
           ctx.fillText(label, x, y - 10)
         }
       }
     } catch (error) {
-      console.error("検出データの取得エラー:", error)
+      console.error("Error fetching detection data:", error)
     }
   }, [canvasRef, videoRef])
 
-  const toggleWebcam = useCallback(async () => {
+  // Start webcam function
+  const startWebcam = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
+          frameRate: { ideal: 30, max: 30 },
+          aspectRatio: { ideal: 4/3 }
+        }
+      })
+      setVideoStream(stream)
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+      return true
+    } catch (error) {
+      console.error("Webcam error:", error)
+      setModelError("Could not access webcam")
+      return false
+    }
+  }, [videoRef])
+
+  // Stop webcam function
+  const stopWebcam = useCallback(() => {
     if (videoStream) {
-      // ウェブカメラを停止
       videoStream.getTracks().forEach((track) => track.stop())
       setVideoStream(null)
       if (videoRef.current) {
         videoRef.current.srcObject = null
       }
-    } else {
-      // ウェブカメラを開始
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            width: { ideal: 640, max: 1280 },
-            height: { ideal: 480, max: 720 },
-            frameRate: { ideal: 30, max: 30 },
-            aspectRatio: { ideal: 4/3 }
-          }
-        })
-        setVideoStream(stream)
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-        }
-      } catch (error) {
-        setModelError("ウェブカメラにアクセスできませんでした")
-      }
     }
   }, [videoStream, videoRef])
 
+  // Start detection (start camera + start detection)
   const startDetection = useCallback(async () => {
-    if (!videoStream || isDetecting) return
+    if (isDetecting) return
 
     try {
+      // 1. First start webcam
+      const cameraStarted = await startWebcam()
+      if (!cameraStarted) return
+
+      // 2. Reset statistics before starting
+      const resetResponse = await fetch("/api/python/reset-stats", {
+        method: "POST",
+      })
+      
+      if (resetResponse.ok) {
+        // Reset local stats as well
+        setStats({
+          totalTime: 0,
+          faceTime: 0,
+          smileTime: 0,
+          engagement: 0,
+        })
+        setLastDetection(null)
+      }
+
+      // 3. Start Python detection
       const response = await fetch("/api/python/start-detection", {
         method: "POST",
       })
@@ -181,41 +208,53 @@ export function useSmileDetector(
 
       if (data.success) {
         setIsDetecting(true)
-        // 検出データのポーリングを開始
+        // Start polling detection data
         pollingIntervalRef.current = setInterval(pollDetectionData, 100)
       } else {
-        setModelError("検出を開始できませんでした")
+        setModelError("Failed to start detection")
+        // Also stop camera
+        stopWebcam()
       }
     } catch (error) {
-      setModelError("Pythonサーバーに接続できませんでした")
+      console.error("Detection start error:", error)
+      setModelError("Could not connect to Python server")
+      // Also stop camera
+      stopWebcam()
     }
-  }, [videoStream, isDetecting, pollDetectionData])
+  }, [isDetecting, startWebcam, stopWebcam, pollDetectionData])
 
+  // Stop detection (stop detection + stop camera)
   const stopDetection = useCallback(async () => {
     try {
+      // 1. Stop Python detection
       await fetch("/api/python/stop-detection", {
         method: "POST",
       })
 
+      // 2. Stop polling
       setIsDetecting(false)
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current)
         pollingIntervalRef.current = null
       }
 
-      // キャンバスをクリア
+      // 3. Clear canvas
       if (canvasRef.current) {
         const ctx = canvasRef.current.getContext("2d")
         if (ctx) {
           ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
         }
       }
-    } catch (error) {
-      console.error("検出停止エラー:", error)
-    }
-  }, [canvasRef])
 
-  // クリーンアップ
+      // 4. Stop webcam
+      stopWebcam()
+      
+    } catch (error) {
+      console.error("Detection stop error:", error)
+    }
+  }, [canvasRef, stopWebcam])
+
+  // Cleanup
   useEffect(() => {
     return () => {
       if (pollingIntervalRef.current) {
@@ -224,7 +263,7 @@ export function useSmileDetector(
       if (videoStream) {
         videoStream.getTracks().forEach((track) => track.stop())
       }
-      // アンマウント時に検出を停止
+      // Stop detection on unmount
       fetch("/api/python/stop-detection", { method: "POST" }).catch(() => {})
     }
   }, [videoStream])
@@ -236,7 +275,6 @@ export function useSmileDetector(
     videoStream,
     modelError,
     stats,
-    toggleWebcam,
     startDetection,
     stopDetection,
   }

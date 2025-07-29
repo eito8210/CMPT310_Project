@@ -21,7 +21,6 @@ export function SmileTrackerCard() {
     videoStream,
     modelError,
     stats,
-    toggleWebcam,
     startDetection,
     stopDetection,
   } = useSmileDetector(videoRef, canvasRef)
@@ -34,7 +33,7 @@ export function SmileTrackerCard() {
         </div>
         <CardTitle className="text-3xl font-bold">Smile Engagement Tracker</CardTitle>
         <CardDescription className="text-lg text-muted-foreground pt-2">
-          Turn on your webcam to analyze your engagement.
+          Press Start to begin tracking your engagement with smile detection.
         </CardDescription>
       </CardHeader>
       <div className="grid md:grid-cols-2">
@@ -52,10 +51,8 @@ export function SmileTrackerCard() {
           <div className="flex flex-col gap-6 mt-6">
             <ControlPanel
               isDetecting={isDetecting}
-              videoStream={videoStream}
               modelsLoaded={modelsLoaded}
               modelError={modelError}
-              toggleWebcam={toggleWebcam}
               startDetection={startDetection}
               stopDetection={stopDetection}
             />

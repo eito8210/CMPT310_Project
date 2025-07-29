@@ -184,11 +184,32 @@ async def initialize():
 async def start_detection():
     """検出を開始"""
     global detection_active, detection_thread
+    global face_detected_time, smile_detected_time, start_time, last_frame_time  # グローバル変数を追加
+    global current_stats, current_detection  # 統計変数も追加
     
     if model is None or face_cascade is None:
         raise HTTPException(status_code=400, detail="モデルが初期化されていません")
     
     if not detection_active:
+        # 統計データをリセット
+        face_detected_time = 0.0
+        smile_detected_time = 0.0
+        start_time = time.time()
+        last_frame_time = time.time()
+        
+        # 現在の統計と検出データもリセット
+        current_stats = {
+            'totalTime': 0.0,
+            'faceTime': 0.0,
+            'smileTime': 0.0,
+            'engagement': 0.0
+        }
+        current_detection = {
+            'faceDetected': False,
+            'smiling': False,
+            'confidence': 0.0
+        }
+        
         detection_active = True
         detection_thread = threading.Thread(target=detection_loop)
         detection_thread.start()
@@ -196,52 +217,27 @@ async def start_detection():
     
     raise HTTPException(status_code=400, detail="検出は既にアクティブです")
 
-@app.post("/api/stop-detection", response_model=Dict[str, bool])
-async def stop_detection():
-    """検出を停止"""
-    global detection_active, detection_thread
+@app.post("/api/reset-stats", response_model=Dict[str, bool])
+async def reset_stats():
+    """統計データをリセット"""
+    global face_detected_time, smile_detected_time, start_time, last_frame_time
+    global current_stats, current_detection
     
-    detection_active = False
-    if detection_thread:
-        detection_thread.join()
+    face_detected_time = 0.0
+    smile_detected_time = 0.0
+    start_time = time.time()
+    last_frame_time = time.time()
+    
+    current_stats = {
+        'totalTime': 0.0,
+        'faceTime': 0.0,
+        'smileTime': 0.0,
+        'engagement': 0.0
+    }
+    current_detection = {
+        'faceDetected': False,
+        'smiling': False,
+        'confidence': 0.0
+    }
     
     return {"success": True}
-
-@app.get("/api/stats", response_model=StatsResponse)
-async def get_stats():
-    """統計を取得"""
-    return StatsResponse(**current_stats)
-
-@app.get("/api/detection", response_model=DetectionResponse)
-async def get_detection():
-    """現在の検出結果を取得"""
-    return DetectionResponse(**current_detection)
-
-@app.get("/api/status", response_model=StatusResponse)
-async def get_status():
-    """ステータスを取得"""
-    return StatusResponse(
-        modelsLoaded=model is not None and face_cascade is not None,
-        detecting=detection_active
-    )
-
-@app.get("/")
-async def root():
-    """ルートエンドポイント"""
-    return {"message": "Smile Detection API", "status": "running", "port": API_PORT}
-
-if __name__ == "__main__":
-    import uvicorn
-    print("🚀 Smile Detection API を起動中...")
-    print(f"📱 API: http://localhost:{API_PORT}")
-    print(f"📖 Docs: http://localhost:{API_PORT}/docs")
-    print("⏹️  停止するには Ctrl+C を押してください")
-    print("-" * 50)
-    
-    uvicorn.run(
-        "face_detection_api:app",
-        host=API_HOST,
-        port=API_PORT,
-        reload=False,
-        log_level="info"
-    )
