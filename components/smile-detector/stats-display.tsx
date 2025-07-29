@@ -1,5 +1,5 @@
 import { Progress } from "../ui/progress"
-import { formatTime } from "@/lib/utils"
+import { formatTime } from "../../src/lib/utils"
 
 type Stats = {
   totalTime: number

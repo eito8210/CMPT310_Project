@@ -40,6 +40,10 @@ MANIFEST
 # ====================
 
 .venv/
+
+venv311/
+pyvenv.cfg
+
 venv/
 ENV/
 env/
@@ -167,6 +171,8 @@ secrets.py
 .env.test.local
 .env.production.local
 .env\*
+scripts/SMILEs/**/images/
+
 
 # ====================
 
@@ -184,6 +190,7 @@ secrets.py
 \*.gif
 \*.bmp
 \*.tiff
+\*.jpg
 
 # ====================
 
