@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import load_img
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Conv2D
@@ -83,12 +84,28 @@ class_weights = dict(zip(label, counts))
                                                       stratify = y_train,
                                                       random_state = 42)
 
+if len(X_train.shape) == 3:
+    X_train = np.expand_dims(X_train, axis = -1)
+    X_valid = np.expand_dims(X_valid, axis = -1)
+    X_test = np.expand_dims(X_test, axis = -1)
+
+train_datagen = ImageDataGenerator (
+    rotation_range = 15,
+    width_shift_range = 0.1,
+    height_shift_range = 0.1,
+    zoom_range = 0.2,
+    horizontal_flip = True,
+    fill_mode = 'nearest'
+)
+
+train_generator = train_datagen.flow(X_train, y_train, batch_size = 64)
+
 model = build_model()
 EPOCHS = 20
-history = model.fit(X_train, y_train,
+history = model.fit(
+                    train_generator,
                     validation_data = (X_valid, y_valid),
                     class_weight = class_weights,
-                    batch_size = 64,
                     epochs = EPOCHS)
 model.save("model.keras")
 
