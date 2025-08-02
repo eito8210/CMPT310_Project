@@ -49,13 +49,15 @@ class SmileTrackerTensorFlowGUI:
         main_frame = ttk.Frame(self.root, padding="15")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        # タイトル
+        
         title_label = ttk.Label(main_frame, text="Smile Engagement Tracker", 
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
-        ##subtitle_label = ttk.Label(main_frame, text="Powered by TensorFlow & OpenCV", 
-                                  ##font=('Arial', 12, 'italic'))
+        subtitle_label = ttk.Label(main_frame, text="Created by: \nEito Nishikawa\nJake Sacilotto\nSEUNGYEOP SHIN", 
+                           font=('Helvetica', 12, 'italic'),
+                           anchor='center',
+                           justify='center')
         subtitle_label.grid(row=1, column=0, columnspan=3, pady=(0, 20))
         
         
