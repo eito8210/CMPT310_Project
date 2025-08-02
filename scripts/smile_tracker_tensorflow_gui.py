@@ -54,8 +54,8 @@ class SmileTrackerTensorFlowGUI:
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
-        ##subtitle_label = ttk.Label(main_frame, text="Powered by TensorFlow & OpenCV", 
-                                  ##font=('Arial', 12, 'italic'))
+        subtitle_label = ttk.Label(main_frame, text="Powered by TensorFlow & OpenCV", 
+                                  font=('Arial', 12, 'italic'))
         subtitle_label.grid(row=1, column=0, columnspan=3, pady=(0, 20))
         
         
@@ -145,13 +145,13 @@ class SmileTrackerTensorFlowGUI:
         
     def load_model(self):
         try:
-            if os.path.exists('model.keras'):
-                self.model = load_model('model.keras')
+            if os.path.exists('model.keras2'):
+                self.model = load_model('model.keras2')
                 self.status_var.set("✅ Model loaded successfully")
                 print("Model loaded successfully")
             else:
-                self.status_var.set("❌ model.keras not found")
-                messagebox.showerror("Error", "model.keras file not found!\nPlease ensure the model file is in the same directory.")
+                self.status_var.set("❌ model.kera2s not found")
+                messagebox.showerror("Error", "model.keras2 file not found!\nPlease ensure the model file is in the same directory.")
                 self.start_button['state'] = 'disabled'
         except Exception as e:
             self.status_var.set(f"❌ Model loading error: {str(e)}")
@@ -219,11 +219,11 @@ class SmileTrackerTensorFlowGUI:
                             self.smile_detected_time += frame_time
                             self.is_smiling = True
                             label = f"Smiling ({prediction:.2f})"
-                            color = (0, 255, 0)  # 緑
+                            color = (0, 255, 0)  
                         else:
                             self.is_smiling = False
                             label = f"Not Smiling ({prediction:.2f})"
-                            color = (0, 0, 255)  # 赤
+                            color = (0, 0, 255)  
                         
                         cv2.putText(display_frame, label, (x, y - 10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
