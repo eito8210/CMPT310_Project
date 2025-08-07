@@ -42,9 +42,9 @@ class SmileTrackerTensorFlowGUI:
         
     def setup_gui(self):
         style = ttk.Style()
-        style.configure('Title.TLabel', font=('Arial', 28, 'bold'))
-        style.configure('Stats.TLabel', font=('Arial', 14))
-        style.configure('Status.TLabel', font=('Arial', 12))
+        style.configure('Title.TLabel', font=('Helvetica', 28, 'bold'))
+        style.configure('Stats.TLabel', font=('Helvetica', 14))
+        style.configure('Status.TLabel', font=('Helvetica', 12))
         
         main_frame = ttk.Frame(self.root, padding="15")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -54,8 +54,11 @@ class SmileTrackerTensorFlowGUI:
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
-        ##subtitle_label = ttk.Label(main_frame, text="Powered by TensorFlow & OpenCV", 
-                                  ##font=('Arial', 12, 'italic'))
+        subtitle_label = ttk.Label(main_frame, text="Created by: \nEito Nishikawa\nJake Sacilotto\nSEUNGYEOP SHIN", 
+                                   font=('Helvetica', 12, 'italic'),
+                                   anchor='center',
+                                   justify='center')
+        
         subtitle_label.grid(row=1, column=0, columnspan=3, pady=(0, 20))
         
         
@@ -73,15 +76,15 @@ class SmileTrackerTensorFlowGUI:
         self.confidence_var = tk.StringVar(value="Confidence: 0%")
         
         ttk.Label(info_frame, textvariable=self.face_status_var,
-                 font=('Arial', 16)).pack(pady=10)
+                 font=('Helvetica', 16)).pack(pady=10)
         ttk.Label(info_frame, textvariable=self.smile_status_var,
-                 font=('Arial', 16)).pack(pady=10)
+                 font=('Helvetica', 16)).pack(pady=10)
         ttk.Label(info_frame, textvariable=self.confidence_var,
-                 font=('Arial', 14)).pack(pady=10)
+                 font=('Helvetica', 14)).pack(pady=10)
         
        
         ttk.Label(info_frame, text="Smile Confidence:", 
-                 font=('Arial', 12)).pack(pady=(20, 5))
+                 font=('Helvetica', 12)).pack(pady=(20, 5))
         self.confidence_meter = ttk.Progressbar(info_frame, length=200, 
                                                mode='determinate', maximum=100)
         self.confidence_meter.pack(pady=5)
@@ -127,7 +130,7 @@ class SmileTrackerTensorFlowGUI:
                  style='Stats.TLabel', foreground='green').grid(row=1, column=1, padx=20, pady=5, sticky=tk.W)
         
         ttk.Label(stats_frame, text="Engagement Level:", 
-                 font=('Arial', 12)).grid(row=2, column=0, pady=(10, 5), sticky=tk.W)
+                 font=('Helvetica', 12)).grid(row=2, column=0, pady=(10, 5), sticky=tk.W)
         self.engagement_bar = ttk.Progressbar(stats_frame, length=400, 
                                              mode='determinate', maximum=100)
         self.engagement_bar.grid(row=2, column=1, columnspan=2, pady=(10, 5))
@@ -299,7 +302,7 @@ class SmileTrackerTensorFlowGUI:
         
             self.canvas.delete("all")
             self.canvas.create_text(320, 240, text="Press Start to begin", 
-                                   font=('Arial', 24), fill='white')
+                                   font=('Helvetica', 24), fill='white')
             
             self.status_var.set("Detection stopped")
     
