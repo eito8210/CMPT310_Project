@@ -11,7 +11,7 @@ import os
 class SmileTrackerTensorFlowGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("😊 Smile Engagement Tracker (TensorFlow)")
+        self.root.title("Smile Engagement Tracker")
         self.root.geometry("1000x750")
         
       
@@ -54,7 +54,7 @@ class SmileTrackerTensorFlowGUI:
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
-        subtitle_label = ttk.Label(main_frame, text="Created by: \nJake Sacilotto, Seungyeop Shin, Eito Nishikawa", 
+        subtitle_label = ttk.Label(main_frame, text="Created by: Jake Sacilotto, Seungyeop Shin, Eito Nishikawa", 
                            font=('Helvetica', 12, 'italic'),
                            anchor='center',
                            justify='center')
@@ -103,10 +103,10 @@ class SmileTrackerTensorFlowGUI:
                                      width=20)
         self.stop_button.grid(row=0, column=1, padx=10)
         
-        self.reset_button = ttk.Button(control_frame, text="🔄 Reset Stats", 
-                                      command=self.reset_stats,
-                                      width=20)
-        self.reset_button.grid(row=0, column=2, padx=10)
+        #self.reset_button = ttk.Button(control_frame, text="🔄 Reset Stats", 
+        #                              command=self.reset_stats,
+        #                              width=20)
+        #self.reset_button.grid(row=0, column=2, padx=10)
         
        
         stats_frame = ttk.LabelFrame(main_frame, text="Session Statistics", padding="15")
@@ -220,11 +220,11 @@ class SmileTrackerTensorFlowGUI:
                             self.smile_detected_time += frame_time
                             self.is_smiling = True
                             label = f"Smiling ({prediction:.2f})"
-                            color = (0, 255, 0)  # 緑
+                            color = (0, 255, 0)  
                         else:
                             self.is_smiling = False
                             label = f"Not Smiling ({prediction:.2f})"
-                            color = (0, 0, 255)  # 赤
+                            color = (0, 0, 255)  
                         
                         cv2.putText(display_frame, label, (x, y - 10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
