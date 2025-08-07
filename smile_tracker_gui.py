@@ -54,7 +54,7 @@ class SmileTrackerTensorFlowGUI:
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
-        subtitle_label = ttk.Label(main_frame, text="Created by: \nEito Nishikawa\nJake Sacilotto\nSEUNGYEOP SHIN", 
+        subtitle_label = ttk.Label(main_frame, text="Created by: \n,Jake Sacilotto, Seungyeop Shin, Eito Nishikawa", 
                            font=('Helvetica', 12, 'italic'),
                            anchor='center',
                            justify='center')
