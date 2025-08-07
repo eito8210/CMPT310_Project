@@ -11,7 +11,9 @@ import os
 class SmileTrackerTensorFlowGUI:
     def __init__(self, root):
         self.root = root
+
         self.root.title("Smile Engagement Tracker")
+
         self.root.geometry("1000x750")
         
       
@@ -42,22 +44,26 @@ class SmileTrackerTensorFlowGUI:
         
     def setup_gui(self):
         style = ttk.Style()
+
         style.configure('Title.TLabel', font=('Arial', 28, 'bold'))
         style.configure('Stats.TLabel', font=('Arial', 14))
         style.configure('Status.TLabel', font=('Arial', 12))
+
         
         main_frame = ttk.Frame(self.root, padding="15")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         
-        
+
         title_label = ttk.Label(main_frame, text="Smile Engagement Tracker", 
                                style='Title.TLabel')
         title_label.grid(row=0, column=0, columnspan=3, pady=10)
         
+
         subtitle_label = ttk.Label(main_frame, text="Created by: Jake Sacilotto, Seungyeop Shin, Eito Nishikawa", 
                            font=('Helvetica', 12, 'italic'),
                            anchor='center',
                            justify='center')
+
         subtitle_label.grid(row=1, column=0, columnspan=3, pady=(0, 20))
         
         
@@ -75,6 +81,7 @@ class SmileTrackerTensorFlowGUI:
         self.confidence_var = tk.StringVar(value="Confidence: 0%")
         
         ttk.Label(info_frame, textvariable=self.face_status_var,
+
                  font=('Arial', 16)).pack(pady=10)
         ttk.Label(info_frame, textvariable=self.smile_status_var,
                  font=('Arial', 16)).pack(pady=10)
@@ -84,6 +91,7 @@ class SmileTrackerTensorFlowGUI:
        
         ttk.Label(info_frame, text="Smile Confidence:", 
                  font=('Arial', 12)).pack(pady=(20, 5))
+
         self.confidence_meter = ttk.Progressbar(info_frame, length=200, 
                                                mode='determinate', maximum=100)
         self.confidence_meter.pack(pady=5)
@@ -103,10 +111,12 @@ class SmileTrackerTensorFlowGUI:
                                      width=20)
         self.stop_button.grid(row=0, column=1, padx=10)
         
+
         #self.reset_button = ttk.Button(control_frame, text="🔄 Reset Stats", 
         #                              command=self.reset_stats,
         #                              width=20)
         #self.reset_button.grid(row=0, column=2, padx=10)
+
         
        
         stats_frame = ttk.LabelFrame(main_frame, text="Session Statistics", padding="15")
@@ -116,6 +126,7 @@ class SmileTrackerTensorFlowGUI:
         self.face_time_var = tk.StringVar(value="Face Time: 0:00")
         self.smile_time_var = tk.StringVar(value="Smile Time: 0:00")
         self.engagement_var = tk.StringVar(value="Engagement Score: 0%")
+
         ttk.Label(stats_frame, textvariable=self.total_time_var, 
                 style='Stats.TLabel', anchor='center').grid(row=0, column=0, pady=5, sticky=tk.EW)
         ttk.Label(stats_frame, textvariable=self.face_time_var,
@@ -137,6 +148,7 @@ class SmileTrackerTensorFlowGUI:
         #status_bar = ttk.Label(main_frame, textvariable=self.status_var, 
         #                      style='Status.TLabel', relief=tk.SUNKEN)
         #status_bar.grid(row=5, column=0, columnspan=3, pady=(10, 0), sticky=(tk.W, tk.E))
+
         
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
@@ -148,6 +160,7 @@ class SmileTrackerTensorFlowGUI:
         try:
             if os.path.exists('model.keras'):
                 self.model = load_model('model.keras')
+
                 #self.status_var.set("✅ Model loaded successfully")
                 print("Model loaded successfully")
             else:
@@ -156,6 +169,7 @@ class SmileTrackerTensorFlowGUI:
                 self.start_button['state'] = 'disabled'
         except Exception as e:
             #self.status_var.set(f"❌ Model loading error: {str(e)}")
+
             messagebox.showerror("Error", f"Failed to load model:\n{str(e)}")
             self.start_button['state'] = 'disabled'
     
@@ -220,11 +234,13 @@ class SmileTrackerTensorFlowGUI:
                             self.smile_detected_time += frame_time
                             self.is_smiling = True
                             label = f"Smiling ({prediction:.2f})"
+
                             color = (0, 255, 0)  
                         else:
                             self.is_smiling = False
                             label = f"Not Smiling ({prediction:.2f})"
                             color = (0, 0, 255)  
+
                         
                         cv2.putText(display_frame, label, (x, y - 10), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
@@ -259,6 +275,7 @@ class SmileTrackerTensorFlowGUI:
             self.face_status_var.set("✅ Face Detected")
             if self.is_smiling:
                 self.smile_status_var.set("😊 Smiling!")
+
                 #self.status_var.set("Great smile! Keep it up!")
             else:
                 self.smile_status_var.set("😐 Not Smiling")
@@ -267,6 +284,7 @@ class SmileTrackerTensorFlowGUI:
             self.face_status_var.set("❌ No Face")
             #self.smile_status_var.set("😐 Not Smiling")
             #self.status_var.set("Position your face in front of the camera")
+
         
         confidence_percent = self.current_prediction * 100
         self.confidence_var.set(f"Confidence: {confidence_percent:.1f}%")
@@ -283,7 +301,9 @@ class SmileTrackerTensorFlowGUI:
             self.detection_thread.daemon = True
             self.detection_thread.start()
             
+
             #self.status_var.set("Detection started! Look at the camera and smile 😊")
+
     
     def stop_detection(self):
     
@@ -300,16 +320,20 @@ class SmileTrackerTensorFlowGUI:
         
             self.canvas.delete("all")
             self.canvas.create_text(320, 240, text="Press Start to begin", 
+
                                    font=('Arial', 24), fill='white')
             
             #self.status_var.set("Detection stopped")
+
     
     def reset_stats(self):
 
         self.face_detected_time = 0.0
         self.smile_detected_time = 0.0
         self.update_stats_display()
+
         #self.status_var.set("Statistics reset")
+
     
     def show_final_stats(self):
       
