@@ -230,7 +230,7 @@ class SmileTrackerTensorFlowGUI:
                         prediction = self.model.predict(face_input, verbose=0)[0][0]
                         self.current_prediction = float(prediction)
                         
-                        if prediction > 0.40:
+                        if prediction > 0.30:
                             self.smile_detected_time += frame_time
                             self.is_smiling = True
                             label = f"Smiling ({prediction:.2f})"
