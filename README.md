@@ -1,38 +1,47 @@
-Smile Duration Tracking for Customer Service Kiosks
-CMPT 310 - Summer 2025, Group 38
-Jake Sacilotto, Eito Nishikawa, Seungyeop Shin
+# Smile Duration Tracking for Customer Service Kiosks  
+**CMPT 310 - Summer 2025, Group 38**  
+*Jake Sacilotto, Eito Nishikawa, Seungyeop Shin*  
 
-Overview:
------------
-This application detects customer smiles in real time and calculates an engagement score based on smile duration relative to face presence. It uses a custom-trained Convolutional Neural Network (CNN) with TensorFlow and OpenCV for image processing, and a Python GUI built with Tkinter.
+---
 
-How to Run:
------------
-1. Make sure you have Python 3.8+ installed.
-2. Install required packages using the command:
+## Overview  
+This application detects customer smiles in real time and calculates an **engagement score** based on smile duration relative to face presence.  
 
------------------------------------------------
-   pip install -r requirements.txt
-------------------------------------------------
+- Built with a custom-trained **Convolutional Neural Network (CNN)** using TensorFlow  
+- Uses **OpenCV** for image processing  
+- Includes a **Tkinter-based GUI** for real-time interaction  
 
-3. Place your trained model file (`model.keras`) in the same folder as `smile_tracker_gui.py`.
-4. Run the GUI:
+---
 
----------------------------------------------
-   python smile_tracker_gui.py
----------------------------------------------
+## Features  
+- Real-time **face detection** and **smile classification**  
+- Engagement score calculated based on **smile duration vs. face presence**  
+- **Tkinter-based GUI** with webcam feed and live statistics  
+- Automatic **pop-up summary window** after closing the app  
 
-Features:
------------
-- Real-time face detection and smile classification
-- Engagement score calculated based on smile duration
-- Tkinter-based GUI with webcam feed and live statistics
-- Pop-up summary window after closing
+---
 
-Optional:
------------
-- Run face_detection.py to see the work without the GUI
+## How to Run  
 
-Notes:
------------
-- All files needed to run are included in this ZIP folder.
+### 1. Install Python  
+Make sure you have **Python 3.8+** installed.  
+
+### 2. Install Dependencies  
+Install the required packages with:  
+
+```bash
+pip install -r requirements.txt
+```
+
+
+### 3. Place Model File
+
+Place your trained model file (model.keras) in the same folder as smile_tracker_gui.py.
+
+### 4. Run the GUI
+
+Start the application with:
+
+```bash
+python smile_tracker_gui.py
+```
