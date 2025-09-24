@@ -17,8 +17,15 @@ This application detects customer smiles in real time and calculates an **engage
 - Real-time **face detection** and **smile classification**  
 - Engagement score calculated based on **smile duration vs. face presence**  
 - **Tkinter-based GUI** with webcam feed and live statistics  
-- Automatic **pop-up summary window** after closing the app  
+- Automatic **pop-up summary window** after closing the app
+  
+<p align="center">
+<img width="325" height="289" alt="Image" src="https://github.com/user-attachments/assets/082ff926-d4bc-4b2d-a726-36d8a652897f" />
+</p>
 
+<p align="center">
+<img width="813" height="337" alt="Image" src="https://github.com/user-attachments/assets/29fac362-de4a-4146-9824-6b1b5a1feffc" />
+</p>
 ---
 
 ## How to Run  
